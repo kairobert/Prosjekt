@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+
 func SendPckgTo(ipAdr string, port string, p Msg_pckg){
 	serverAddr, err := net.ResolveUDPAddr("udp",ipAdr+":"+port)
 	con, err := net.DialUDP("udp", nil, serverAddr)
@@ -21,7 +22,7 @@ func SendPckgTo(ipAdr string, port string, p Msg_pckg){
 	}		
 }
 
-func ListenToBroadcast(ipAdr string, port string){
+func ListenToBroadcast(ipAdr string, port string), {
 	serverAddr, err := net.ResolveUDPAddr("udp",ipAdr+":"+port)
 	psock, err := net.ListenUDP("udp4", serverAddr)
 	
@@ -32,9 +33,10 @@ func ListenToBroadcast(ipAdr string, port string){
     		if err != nil { return }
     		_, remoteAddr, _ := psock.ReadFromUDP(buf)
     		if remoteAddr.IP.String() != MY_IP {
-    			fmt.Printf("oida")
-		fmt.Printf("%s\n",buf)
-		}
+    			fmt.Println(remoteAddr.IP.String())
+    		}
+		   fmt.Printf("%s\n",buf)
+		
 	 }	
 		
 }
