@@ -15,7 +15,7 @@ type ComsChannels struct{
     
 var ComsChan ComsChannels
 
-func (ComsChan *ComsChannels) ComsChanInit() {
+func ComsChanInit(){
     ComsChan.RecvPckg = make(chan []byte,255)
     ComsChan.SendPckg = make(chan []byte,255)
 }

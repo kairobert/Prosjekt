@@ -3,23 +3,26 @@ package coms
 import (
 	"net"
 	"fmt"
+	
 )
 
 
-func SendPckgToAll(ipAdr string, port string, thisChan ComsChannels){
-	serverAddr, err := net.ResolveUDPAddr("udp",ipAdr+":"+port)
+func SendPckgToAll( port string, pckgChan ComsChannels){
+    bcastIP:=GetBroadcastIP(GetMyIP())
+    
+	serverAddr, err := net.ResolveUDPAddr("udp",bcastIP+":"+port)
 	con, err := net.DialUDP("udp", nil, serverAddr)	
-	if err != nil {
-		fmt.Println("fail")
-	}
+	if err != nil {return}
 	
-	msg:=make([]byte)
-	msg=<-RecvPckg
+	
+	msg:=make([]byte,100)
+	msg=<-pckgChan.SendPckg
 	con.Write(msg)
 			
 }
 
-func ListenToBroadcast(ipAdr string, port string, Coms.Pckg_chan) {
+func ListenToBroadcast(ipAdr string, port string, pckgChan ComsChannels) {
+    fmt.Println("inni listen")
 	serverAddr, err := net.ResolveUDPAddr("udp",ipAdr+":"+port)
 	if err != nil { return }
 	
@@ -32,7 +35,7 @@ func ListenToBroadcast(ipAdr string, port string, Coms.Pckg_chan) {
   	    _, remoteAddr, err := psock.ReadFromUDP(buf)
     	if err != nil { return }
     	if remoteAddr.IP.String() != MY_IP {
-    	    Pckg_chan<-buf
+    	    pckgChan.RecvPckg<-buf
     	}       
     }	
 }
