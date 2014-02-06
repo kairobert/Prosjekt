@@ -4,17 +4,24 @@ package coms
 //FYYYYY
 var MY_IP = GetMyIP()
 
-//const TARGET_IP =  getBroadcastIP()
+
 const TARGET_PORT = "20011"
 const LISTEN_PORT = "30011"
 
-type ComsChannels struct
-     Pckg_chan chan []byte
-   
-var ComsChan
+type ComsChannels struct{
+    RecvPckg chan []byte
+    SendPckg chan []byte  
+} 
+    
+var ComsChan ComsChannels
+
+func (ComsChan *ComsChannels) ComsChanInit() {
+    ComsChan.RecvPckg = make(chan []byte,255)
+    ComsChan.SendPckg = make(chan []byte,255)
 }
 
 
-var udp_con = make(chan Msg_pckg,255)
+
+
 
 
