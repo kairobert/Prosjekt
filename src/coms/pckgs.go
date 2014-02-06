@@ -5,13 +5,12 @@ import "strings"
 const MSG_PCKG_SIZE = 1024
 
 type Msg_pckg struct{
-	from string //ipAdr
-	msg_type string //order, deadElev, auction, connect to me
-	payload string
+	From string //ipAdr
+	Msg_type string //order, deadElev, auction, connect to me
+	Payload string
 }
 
-var Bcast_chan = make(chan Msg_pckg, MSG_PCKG_SIZE)
-var St_chan =make(chan string,100)
+
 
 
 func ConstructPckg(adr string, typ string, msg string) Msg_pckg{
@@ -20,7 +19,7 @@ func ConstructPckg(adr string, typ string, msg string) Msg_pckg{
 
 //not generic, could use reflect...
 func Pckg2bstream(p Msg_pckg) []byte{
-	msg := p.from +"~"+ p.msg_type +"~"+ p.payload
+	msg := p.From +"~"+ p.Msg_type +"~"+ p.Payload
 	return []byte(msg+"\x00")
 }
 

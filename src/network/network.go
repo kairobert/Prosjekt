@@ -1,12 +1,4 @@
-package Network 
-
-import "fmt"
-
-
-
-
-
-
+package network 
 
 
 
