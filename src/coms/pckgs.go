@@ -5,7 +5,7 @@ import "strings"
 const MSG_PCKG_SIZE = 1024
 
 type Msg_pckg struct{
-	from string
+	from string //ipAdr
 	msg_type string //order, deadElev, auction, connect to me
 	payload string
 }

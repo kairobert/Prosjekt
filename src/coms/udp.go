@@ -30,10 +30,11 @@ func ListenToBroadcast(ipAdr string, port string) {
     		
     		_, remoteAddr, err := psock.ReadFromUDP(buf)
     		if err != nil { return }
-    		//if remoteAddr.IP.String() != MY_IP {
-    		//    fmt.Println(remoteAddr.IP.String())
+    		if remoteAddr.IP.String() != MY_IP {
+    		//fmt.Println(remoteAddr.IP.String())
     		//}
 		    //fmt.Printf("%s\n",buf)
+            
             msg := remoteAddr.IP.String()
 		    St_chan<-msg
 	    	
