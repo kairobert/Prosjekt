@@ -28,7 +28,7 @@ type Button struct{
 }
 
 var buttonChan chan Button
-var floorChan chan int
+var sensorChan chan int
 var motorChan chan Direction
 var stopButtonChan chan bool
 var obsChan chan bool
@@ -122,10 +122,70 @@ func motorCtrl(motorChan channel Direction){
     }
 }
 
-func listenButtons(){
+func listenButtons(ButtonChan buttonChan){
+    var buttonMap = map[int]button{
+        FLOOR_COMMAND1: {1, NONE},
+        FLOOR_COMMAND2: {2, NONE},
+        FLOOR_COMMAND3: {3, NONE},
+        FLOOR_COMMAND4: {4, NONE},
+        FLOOR_UP1:      {1, UP},
+        FLOOR_UP2:      {2, UP},
+        FLOOR_UP3:      {3, UP},
+        FLOOR_DOWN2:    {2, DOWN},
+        FLOOR_DOWN3:    {3, DOWN},
+        FLOOR_DOWN4:    {4, DOWN},
+    {
+
+    buttonList := make(map[int]bool)
+    for key, _ := range buttonMap {
+        buttonList[key] = Read_bit(key)
+    }    
+    
+     for key, button := range buttonMap {
+         newValue := Read_bit(key)
+         if newValue && !buttonList[key] {
+            newButton := button
+            go func() {
+                buttonChan <- newButton
+            }()
+         }
+      buttonList[key] = newValue
+      }
 }
 
-func listenSensors({
+func listenSensors(FloorChan sensorChan){
+    var floorMap = map[int]int{
+        SENSOR1: 1,
+        SENSOR2: 2,
+        SENSOR3: 3,
+        SENSOR4: 4,
+    }
+    
+    atFloor := false
+    
+    floorList := make(map[int]bool)
+    for key, _ := range floorMap {
+        floorList[key] = Read_bit(key)
+    }
+    
+    for {
+        time.Sleep(1E7)
+        atFloor = false
+        for key, floor := range floorMap {
+            if Read_bit(key) {
+                select {
+                    case FloorChan <- floor:
+                    default:
+                }
+                atFloor = true
+            }
+        }
+            if !atFloor {
+                select {
+                    case FloorChan <- -1:
+                    default:
+                }
+            }   
 }
 
 func InitElev(){
