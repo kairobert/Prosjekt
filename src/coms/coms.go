@@ -1,3 +1,4 @@
+
 package coms
 
 //FYYYYY
@@ -11,7 +12,7 @@ type ComsChannels struct{
    
 }
 
-func initIntChan{
-   udp_con := make(chan Msg_pckg,255)
-}
+
+var udp_con = make(chan Msg_pckg,255)
+
 
