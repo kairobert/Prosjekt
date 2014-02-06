@@ -8,8 +8,10 @@ var MY_IP = GetMyIP()
 const TARGET_PORT = "20011"
 const LISTEN_PORT = "30011"
 
-type ComsChannels struct{
+type ComsChannels struct
+     Pckg_chan chan []byte
    
+var ComsChan
 }
 
 

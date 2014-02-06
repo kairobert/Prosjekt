@@ -19,7 +19,7 @@ func SendPckgToAll(ipAdr string, port string, p Msg_pckg){
 			
 }
 
-func ListenToBroadcast(ipAdr string, port string) {
+func ListenToBroadcast(ipAdr string, port string, Pckg_chan) {
 	serverAddr, err := net.ResolveUDPAddr("udp",ipAdr+":"+port)
 	psock, err := net.ListenUDP("udp4", serverAddr)	
 	if err != nil { return }
@@ -31,12 +31,11 @@ func ListenToBroadcast(ipAdr string, port string) {
     		_, remoteAddr, err := psock.ReadFromUDP(buf)
     		if err != nil { return }
     		if remoteAddr.IP.String() != MY_IP {
+    		 
     		//fmt.Println(remoteAddr.IP.String())
     		//}
 		    //fmt.Printf("%s\n",buf)
             
-            msg := remoteAddr.IP.String()
-		    St_chan<-msg
 	    	
 	 }	
 		

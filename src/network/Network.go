@@ -4,6 +4,13 @@ import "fmt"
 
 
 
+
+
+
+
+
+
+
 type Elev struct{
     ip string
     sendPort string
@@ -15,7 +22,7 @@ type Elev struct{
 //    ElevList:=make([]Elev,999)
 //}
 
-func GetMsg(){
+func DeliverPckg(){
     for {
         temp :="" 
         temp=<-coms.St_chan

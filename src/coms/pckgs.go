@@ -10,8 +10,7 @@ type Msg_pckg struct{
 	payload string
 }
 
-var Bcast_chan = make(chan Msg_pckg, MSG_PCKG_SIZE)
-var St_chan =make(chan string,100)
+
 
 
 func ConstructPckg(adr string, typ string, msg string) Msg_pckg{
