@@ -17,8 +17,9 @@ func SendPckgToAll( port string, pckgChan ComsChannels){
 	if err != nil {return}
 	
 	
-	msg:=make([]byte,100)
-	msg=<-pckgChan.SendPckg
+	pckg:=make(Msg_pckg)
+	pckg=<-pckgChan.SendPckg
+	msg := Pckg2bstream(pckg)
 	con.Write(msg)
 			
 }

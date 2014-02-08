@@ -9,16 +9,15 @@ const TARGET_PORT = "20011"
 const LISTEN_PORT = "30011"
 
 type ComsChannels struct{
-    RecvPckg chan []byte
-    SendPckg chan []byte  
-	RecvBcast chan []byte
-	SendBcast chan []byte
+    RecvPckg chan Msg_pckg
+    SendPckg chan Msg_pckg  
+	SendBcast chan Msg_pckg
 
 }    
 var ComsChan ComsChannels
 
 func ComsChanInit(){
-    ComsChan.RecvPckg = make(chan []byte,255)
-    ComsChan.SendPckg = make(chan []byte,255)
-	ComsChan.SendBcast = make(chan []byte,255)
+    ComsChan.RecvPckg = make(chan Msg_pckg,255)
+    ComsChan.SendPckg = make(chan Msg_pckg,255)
+	ComsChan.SendBcast = make(chan Msg_pckg,255)
 }

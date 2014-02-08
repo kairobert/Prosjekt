@@ -9,7 +9,7 @@ func DeliverPckg(pckgChan coms.ComsChannels){
     msg:=make([]byte,100)
     for{
         msg=<-pckgChan.RecvPckg
-        pckg :=coms.Bytestrm2pckg(msg)
+        pckg := Bytestrm2pckg(msg)
     
         switch pckg.Msg_type{
         case "PING":
