@@ -10,29 +10,20 @@ import (
 
 type Direction int 
 
-const N_FLOORS 4
-
 const SPEED0 = 2048
 const SPEED1 = 4024
 
+const N_FLOORS = 4
 const (
-    UP Direction //= iota
+    UP Direction = iota
     DOWN
     NONE
-    N_DIR
 )
 
 type Button struct{
-    dir Direction       
-    floor int
+	floor int    
+	dir Direction           
 }
-
-var buttonChan chan Button
-var sensorChan chan int
-var motorChan chan Direction
-var stopButtonChan chan bool
-var obsChan chan bool
-
 
 func setLight(floor int, dir Direction){
     switch{  
@@ -57,10 +48,11 @@ func setLight(floor int, dir Direction){
     case floor == 4 && dir == DOWN:
         Set_bit(LIGHT_DOWN4)
     default:
-        printf("Error: Illegal floor or direction")
+        fmt.Println("Error: Illegal floor or direction")
+	}
 }
 
-func clearLight(floor int, dir Direction){
+func ClearLight(floor int, dir Direction){
     switch{  
     case floor == 1 && dir == NONE:
         Clear_bit(LIGHT_COMMAND1)
@@ -83,38 +75,43 @@ func clearLight(floor int, dir Direction){
     case floor == 4 && dir == DOWN:
         Clear_bit(LIGHT_DOWN4)
     default:
-        printf("elevdriver: Error! Illegal floor or direction!")
+        fmt.Println("elevdriver: Error! Illegal floor or direction!")
+	}
 }
 
-func clearAllLights(){
-    for int floor := 1; floor<N_FLOORS ; floor++{
-        for int dir := 1; dir<N_DIR; dir+{
-            clear_light(floor, dir)
-        }
+func ClearAllLights(){
+    for floor:= 1; floor<N_FLOORS ; floor++{
+        ClearLight(floor, UP)
+		ClearLight(floor, DOWN)
+		ClearLight(floor, NONE)
     }
 }
 
-func motorCtrl(motorChan channel Direction){
+func motorCtrl(motorChan chan Direction){
     lastDir := NONE
+
     for {
-        switch newDir := <-motorChan{
-        case UP:
+        newDir := <-motorChan
+        if newDir == UP{
             Clear_bit(MOTORDIR)
             Write_analog(MOTOR,SPEED1)
-        case DOWN:
+		}
+        if newDir == DOWN{
             Set_bit(MOTORDIR)
             Write_analog(MOTOR,SPEED1)
-        case NONE:
+		}
+        if newDir == NONE{
             if lastDir == DOWN{
                 Clear_bit(MOTORDIR)
                 Write_analog(MOTOR,SPEED0)
-            } 
-            else if lastDir == UP{
+            }
+            if lastDir == UP{
                 Set_bit(MOTORDIR)
                 Write_analog(MOTOR,SPEED0)
             } else{
             fmt.Println("elevdriver: ERROR, illegal lastDir")
-        default:
+			}
+		}else{
             Write_analog(MOTOR,SPEED0)
             fmt.Println("elevdriver: ERROR, illegal motor direction")
         }
@@ -122,8 +119,8 @@ func motorCtrl(motorChan channel Direction){
     }
 }
 
-func listenButtons(ButtonChan buttonChan){
-    var buttonMap = map[int]button{
+func listenButtons(buttonChan chan Button){
+    var buttonMap = map[int]Button{
         FLOOR_COMMAND1: {1, NONE},
         FLOOR_COMMAND2: {2, NONE},
         FLOOR_COMMAND3: {3, NONE},
@@ -134,9 +131,9 @@ func listenButtons(ButtonChan buttonChan){
         FLOOR_DOWN2:    {2, DOWN},
         FLOOR_DOWN3:    {3, DOWN},
         FLOOR_DOWN4:    {4, DOWN},
-    {
+    }
 
-    buttonList := make(map[int]bool)
+   	buttonList := make(map[int]bool)
     for key, _ := range buttonMap {
         buttonList[key] = Read_bit(key)
     }    
@@ -145,7 +142,7 @@ func listenButtons(ButtonChan buttonChan){
          newValue := Read_bit(key)
          if newValue && !buttonList[key] {
             newButton := button
-            go func() {
+            go func() {		//why not select???
                 buttonChan <- newButton
             }()
          }
@@ -153,7 +150,7 @@ func listenButtons(ButtonChan buttonChan){
       }
 }
 
-func listenSensors(FloorChan sensorChan){
+func listenSensors(sensorChan chan int){
     var floorMap = map[int]int{
         SENSOR1: 1,
         SENSOR2: 2,
@@ -169,89 +166,90 @@ func listenSensors(FloorChan sensorChan){
     }
     
     for {
-        time.Sleep(1E7)
+        time.Sleep(25 * time.Millisecond)
         atFloor = false
         for key, floor := range floorMap {
             if Read_bit(key) {
-                select {
-                    case FloorChan <- floor:
+                select {		//why not go?
+                    case sensorChan <- floor:
                     default:
                 }
                 atFloor = true
             }
         }
-            if !atFloor {
-                select {
-                    case FloorChan <- -1:
-                    default:
-                }
-            }   
+        if !atFloor {
+	        select {
+            case sensorChan <- -1:
+            default:
+            }
+        }
+	}   
 }
 
-func InitElev(){
+func InitElev(	
+		buttonChan chan Button,
+		sensorChan chan int,
+		motorChan chan Direction,
+		stopButtonChan chan bool,
+		obsChan chan bool){
 
-    if !IoInit(){
-        fmt.Println("elevdriver: Driver init()... OK!")
+	if !IoInit(){
+        	fmt.Println("elevdriver: Driver init()... OK!")
 	} else {
 	    fmt.Println("elevdriver: Driver init()... FAILED!")
 	}
 	
-	clearAllLights();
-	
-	buttonChan = make(chan Button)
-    sensorChan = make(chan int)
-    motorChan = make(chan Direction)
-
-    emgStopChan = make(chan bool)
-    obstructionChan = make(chan bool)
+	ClearAllLights();
 	
 	go listenButtons(buttonChan)
 	go listenSensors(sensorChan)
+	go motorCtrl(motorChan)
 	
 	go func() {
-    // capture ctrl+c and stop elevator
+    	// capture ctrl+c and stop elevator
         c := make(chan os.Signal)
         signal.Notify(c, os.Interrupt)
         s := <-c
         log.Printf("Got: %v, terminating program..", s)
-        MotorStop()
-        clearLights()
+        MotorStop(motorChan)
+        ClearAllLights()
         os.Exit(1)
     }()
 }
 
 func OpenDoor(){
-    Set_bit(DOOR_OPEN)
+    	Set_bit(DOOR_OPEN)
 }
 
 func CloseDoor(){
-    Set_bit(DOOR_CLOSE)
+    	Clear_bit(DOOR_OPEN)
 }
 
-func MotorUp() {
+func MotorUp(motorChan chan Direction) {
         motorChan <- UP
 }
 
-func MotorDown() {
+func MotorDown(motorChan chan Direction) {
         motorChan <- DOWN
 }
 
-func MotorStop() {
+func MotorStop(motorChan chan Direction) {
         motorChan <- NONE
 }
 
-func GetStopButton(){
-    return Read_bit(STOP)
+func GetStopButton() bool{
+    	return Read_bit(STOP)
 }
 
 func SetStopButton(){
-    Set_bit(STOP)
+    	Set_bit(STOP)
 }
 
 func ClearStopButton(){
-    Clear_bit(STOP)
+    	Clear_bit(STOP)
 }
 
-
-
-
+func GetObstruction() bool{
+	return Read_bit(OBSTRUCTION)
+}
+	
