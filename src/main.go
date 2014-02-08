@@ -18,7 +18,7 @@ func main() {
 
 	//go coms.SendPckgTo(BCAST_IP,TARGET_PORT ,test)
 	
-	go coms.ListenToBroadcast(BCAST_IP, LISTEN_PORT,coms.ComsChan )
+	go coms.ListenToBroadcast(LISTEN_PORT,coms.ComsChan )
 	go network.DeliverPckg(coms.ComsChan)
 	fmt.Println("hallaa")
 	

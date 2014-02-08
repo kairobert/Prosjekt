@@ -6,7 +6,6 @@ import "fmt"
 
 
 func DeliverPckg(pckgChan coms.ComsChannels){
-    fmt.Println("inni deliver")
     msg:=make([]byte,100)
     for{
         msg=<-pckgChan.RecvPckg
