@@ -76,31 +76,40 @@ func ClearLight(floor int, dir Direction){
         Clear_bit(LIGHT_DOWN4)
     default:
         fmt.Println("elevdriver: Error! Illegal floor or direction!")
+		fmt.Println("dir: ", dir, ", floor: ",floor)
 	}
 }
 
 func ClearAllLights(){
-    for floor:= 1; floor<N_FLOORS ; floor++{
-        ClearLight(floor, UP)
-		ClearLight(floor, DOWN)
-		ClearLight(floor, NONE)
-    }
+        ClearLight(1, UP)
+        ClearLight(2, UP)
+        ClearLight(3, UP)
+        ClearLight(2, DOWN)
+        ClearLight(3, DOWN)
+        ClearLight(4, DOWN)
+        ClearLight(1, NONE)
+        ClearLight(2, NONE)
+        ClearLight(3, NONE)
+        ClearLight(4, NONE)
+		CloseDoor()
+        ClearStopButton()
 }
 
 func motorCtrl(motorChan chan Direction){
     lastDir := NONE
+	newDir := NONE
 
     for {
-        newDir := <-motorChan
-        if newDir == UP{
+        newDir=<-motorChan
+		fmt.Println("motorCtrl recv newDir=", newDir)
+		switch newDir{
+        case UP:
             Clear_bit(MOTORDIR)
             Write_analog(MOTOR,SPEED1)
-		}
-        if newDir == DOWN{
+        case DOWN:
             Set_bit(MOTORDIR)
             Write_analog(MOTOR,SPEED1)
-		}
-        if newDir == NONE{
+        case NONE:
             if lastDir == DOWN{
                 Clear_bit(MOTORDIR)
                 Write_analog(MOTOR,SPEED0)
@@ -111,7 +120,7 @@ func motorCtrl(motorChan chan Direction){
             } else{
             fmt.Println("elevdriver: ERROR, illegal lastDir")
 			}
-		}else{
+		default:
             Write_analog(MOTOR,SPEED0)
             fmt.Println("elevdriver: ERROR, illegal motor direction")
         }
@@ -194,7 +203,7 @@ func InitElev(
 		obsChan chan bool){
 
 	if !IoInit(){
-        	fmt.Println("elevdriver: Driver init()... OK!")
+        fmt.Println("elevdriver: Driver init()... OK!")
 	} else {
 	    fmt.Println("elevdriver: Driver init()... FAILED!")
 	}
@@ -231,6 +240,7 @@ func MotorUp(motorChan chan Direction) {
 
 func MotorDown(motorChan chan Direction) {
         motorChan <- DOWN
+		fmt.Println("motorChan <- DOWN")
 }
 
 func MotorStop(motorChan chan Direction) {

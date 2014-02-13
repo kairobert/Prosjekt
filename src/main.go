@@ -4,6 +4,7 @@ import "runtime"
 import "coms"
 import "fmt"
 import "network"
+import "elevdriver"
 
 const BCAST_IP = "129.241.187.255"
 const LISTEN_PORT = "20022"
@@ -12,7 +13,7 @@ const TARGET_PORT = "20011"
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU()) 
-	sleepChan :=make(chan int)
+	//sleepChan :=make(chan int)
 	//test :=coms.ConstructPckg("129.241.187.255","PING", "cake or death?")
 	coms.ComsChanInit()
 
@@ -21,6 +22,32 @@ func main() {
 	go coms.ListenToBroadcast(LISTEN_PORT,coms.ComsChan )
 	go network.DeliverPckg(coms.ComsChan)
 	fmt.Println("hallaa")
+
+	buttonChan := make(chan elevdriver.Button)
+    floorChan := make(chan int)
+    motorChan := make(chan elevdriver.Direction)
+    stopButtonChan := make(chan bool)
+    obsChan := make(chan bool)
 	
-	<-sleepChan
+	elevdriver.InitElev(
+		buttonChan, 
+		floorChan, 
+		motorChan,
+		stopButtonChan, 
+		obsChan)
+
+	elevdriver.MotorDown(motorChan)
+	sensor := -1
+
+	for{
+		select{
+		case sensor=<-floorChan:
+			if sensor == 1{
+				elevdriver.MotorUp(motorChan)
+			}
+			if sensor == 4{
+				elevdriver.MotorDown(motorChan)
+			}
+		}	
+	}
 }
