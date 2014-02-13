@@ -12,6 +12,7 @@ type Direction int
 
 const SPEED0 = 2048
 const SPEED1 = 4024
+const REV_TIME = 10 * time.Millisecond
 
 const N_FLOORS = 4
 const (
@@ -104,20 +105,33 @@ func motorCtrl(motorChan chan Direction){
 		fmt.Println("motorCtrl recv newDir=", newDir)
 		switch newDir{
         case UP:
-            Clear_bit(MOTORDIR)
+           	Clear_bit(MOTORDIR)
             Write_analog(MOTOR,SPEED1)
         case DOWN:
             Set_bit(MOTORDIR)
             Write_analog(MOTOR,SPEED1)
         case NONE:
-            if lastDir == DOWN{
-                Clear_bit(MOTORDIR)
-                Write_analog(MOTOR,SPEED0)
-            }
-            if lastDir == UP{
-                Set_bit(MOTORDIR)
-                Write_analog(MOTOR,SPEED0)
-            } else{
+			/* Reverse direction before stopping*/	
+            switch lastDir{
+			case DOWN:
+				/* Reverse */				
+				Clear_bit(MOTORDIR)
+        	    Write_analog(MOTOR,SPEED1)
+				time.Sleep(REV_TIME)
+				/* Stop */
+    	        Clear_bit(MOTORDIR)
+    	        Write_analog(MOTOR,SPEED0)
+            case UP:
+				/* Reverse */
+				Set_bit(MOTORDIR)
+    	        Write_analog(MOTOR,SPEED1)
+				time.Sleep(REV_TIME)
+				/* Stop */
+    	        Set_bit(MOTORDIR)
+    	        Write_analog(MOTOR,SPEED0)
+			case NONE:
+				fmt.Println("elevdriver: lastDir=newDir=NONE, problem?")
+            default:
             fmt.Println("elevdriver: ERROR, illegal lastDir")
 			}
 		default:
@@ -125,7 +139,7 @@ func motorCtrl(motorChan chan Direction){
             fmt.Println("elevdriver: ERROR, illegal motor direction")
         }
         lastDir = newDir
-    }
+	}
 }
 
 func listenButtons(buttonChan chan Button){

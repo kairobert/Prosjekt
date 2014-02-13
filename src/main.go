@@ -21,7 +21,7 @@ func main() {
 	
 	go coms.ListenToBroadcast(LISTEN_PORT,coms.ComsChan )
 	go network.DeliverPckg(coms.ComsChan)
-	fmt.Println("hallaa")
+	fmt.Println("Coms OK")
 
 	buttonChan := make(chan elevdriver.Button)
     floorChan := make(chan int)
@@ -38,12 +38,12 @@ func main() {
 
 	elevdriver.MotorDown(motorChan)
 	sensor := -1
-
 	for{
 		select{
 		case sensor=<-floorChan:
 			if sensor == 1{
 				elevdriver.MotorUp(motorChan)
+			}
 			}
 			if sensor == 4{
 				elevdriver.MotorDown(motorChan)
