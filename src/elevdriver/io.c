@@ -7,7 +7,7 @@
 //
 // YOU DO NOT NEED TO EDIT THIS FILE
 //
-/*
+
 #include "io.h"
 #include "channels.h"
 
@@ -72,7 +72,4 @@ int io_read_analog(int channel){
 
     return (int)data;
 }
-
-
-*/
 
