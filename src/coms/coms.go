@@ -3,7 +3,8 @@ import("net")
 
 
 var TcpConsMap = map[string]net.Conn{
-}
+	}
+
 
 
 const TARGET_PORT = "20011"
@@ -12,7 +13,6 @@ const LISTEN_PORT = "30011"
 type ComsChannels struct{
 	RecvPckg chan []byte
 	SendPckg chan []byte  
-	RecvBcast chan []byte
 	SendBcast chan []byte
 
 }    
@@ -32,8 +32,8 @@ type TcpChannels struct{
 	
 var tcpChan TcpChannels
 
-func tcpChanInit(){
-	tcpChan.connect_to = make(chan bool)
-	tcpChan.dead_elev = make(chan bool)
-	tcpChan.new_conn = make(chan net.Conn)
+func TcpChanInit(){
+	tcpChan.connect_to = make(chan bool, 255)
+	tcpChan.dead_elev = make(chan bool, 255)
+	tcpChan.new_conn = make(chan net.Conn, 255)
 }
