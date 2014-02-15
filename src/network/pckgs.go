@@ -1,7 +1,8 @@
-package coms
+package network
 
 import "strings"
 
+const MSG_PCKG_SIZE = 1024
 
 type Msg_pckg struct{
 	From string //ipAdr

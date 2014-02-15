@@ -1,8 +1,5 @@
 package network 
 
-type TcpConnMap struct {
-        tcpMap map[string]
-}
 
 
 
