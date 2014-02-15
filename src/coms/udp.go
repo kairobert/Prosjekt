@@ -6,11 +6,13 @@ import (
 	
 )
 
+const UDP_PORT ="20000"//All Elevs listen to this Broadcast Port
+
 
 func SendPckgToAll( port string, pckgChan ComsChannels){
     bcastIP:=GetBroadcastIP(GetMyIP())
     
-	serverAddr, err := net.ResolveUDPAddr("udp",bcastIP+":"+port)
+	serverAddr, err := net.ResolveUDPAddr("udp",bcastIP+":"+UDP_PORT)
 	if err != nil {return}
 
 	con, err := net.DialUDP("udp", nil, serverAddr)	
@@ -24,9 +26,11 @@ func SendPckgToAll( port string, pckgChan ComsChannels){
 }
 
 func ListenToBroadcast(port string, pckgChan ComsChannels) {
-	bcastIP:=GetBroadcastIP(GetMyIP())
+	myIp :=GetMyIP()
+	bcastIP:=GetBroadcastIP(myIp)
+	
 
-	serverAddr, err := net.ResolveUDPAddr("udp",bcastIP+":"+port)
+	serverAddr, err := net.ResolveUDPAddr("udp",bcastIP+":"+UDP_PORT)
 	if err != nil { return }
 	
 	psock, err := net.ListenUDP("udp4", serverAddr)	
@@ -36,11 +40,11 @@ func ListenToBroadcast(port string, pckgChan ComsChannels) {
  
   	for {
   	    _, remoteAddr, err := psock.ReadFromUDP(buf)
-    	if err != nil { return }
-
-    	if remoteAddr.IP.String() != MY_IP {
-    	    pckgChan.RecvPckg<-buf
-    	}       
-    }	
+    		if err != nil { return }
+		
+    		if remoteAddr.IP.String() != myIp {
+    	    		pckgChan.RecvPckg<-buf
+    		}       
+      }	
 }
 

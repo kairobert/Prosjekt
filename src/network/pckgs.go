@@ -1,4 +1,4 @@
-package coms
+package network
 
 import "strings"
 
