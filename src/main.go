@@ -44,7 +44,6 @@ func main() {
 			if sensor == 1{
 				elevdriver.MotorUp(motorChan)
 			}
-			}
 			if sensor == 4{
 				elevdriver.MotorDown(motorChan)
 			}
