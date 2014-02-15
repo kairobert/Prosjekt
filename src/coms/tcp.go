@@ -1,7 +1,8 @@
 package coms
 import(
 	"net"
-	"fmt"			
+	"fmt"	
+	"strings"	
 )
 
 const CON_ATMPTS = 10
@@ -9,36 +10,33 @@ const TCP_PORT = "30000" //All elevators will listen to this port for TCP connec
 
 
 
-func handleTCPCom(){
-	go listenTcpMsg()
+func HandleTCPCom(){	
 	go listenTcpCon()
-	
+
 	for {
+	fmt.Println("in select")
 		select{
-		case <-tcpChan.dead_elev:
-			fmt.Println("do something")
-		case <-tcpChan.connect_to:
-		default:
-			fmt.Println("do something else")
+		case newTcpCon:=<- tcpChan.new_conn:
+			handleNewCon(newTcpCon)
 		}//end select
 	}//end for
 }
 
 
-//delete this later pls
-func ConnectToElev(ipAdr string, port string, pckg []byte){
-    serverAddr, err := net.ResolveTCPAddr("tcp",ipAdr+":"+port)
-	if err != nil {return}
-
-	con, err := net.DialTCP("tcp", nil, serverAddr);
-	if err != nil {return}
-	
-		msg :=make([]byte,255)
-		con.Write(msg)
-}
-
-
-func listenTcpMsg(){
+func listenMsg(con net.Conn){
+	fmt.Println("inside listen Msg")
+	msg := make([]byte,1024)
+	addr := con.RemoteAddr()
+	fmt.Println(addr)
+    for {
+		_, err := con.Read(msg[0:])
+	    if err!=nil {
+			//fmt.Println("error in listen")			
+		}else{
+			ComsChan.RecvPckg<-msg
+			fmt.Println("sendt msg on channel to network")
+		}
+	}
 }
 
 func listenTcpCon(){
@@ -52,16 +50,29 @@ func listenTcpCon(){
 			if err != nil {
 				return
 			}else{
-   				fmt.Println("ok")
+   				fmt.Println("connection ok")
    				tcpChan.new_conn<-con
+				fmt.Println("sendt con on chan")
    				//"send on new ip channel"
    			
    			}
    	}
 }	
 
+func sendTcpMsg(msg []byte, ipAddr string){
+	con, ok :=TcpConsMap[ipAddr]
+	if ok{
+		_, err := con.Write(msg)
+		if err!=nil{
+			fmt.Println("failed to send msg")
+		}
+	}else{
+		fmt.Println("error, not a connection")
+	}
+}
 
-func connectTcp(ipAdr string){
+
+func ConnectTcp(ipAdr string){
 	atmpts:=0
 	for atmpts < CON_ATMPTS{
 		serverAddr, err := net.ResolveTCPAddr("tcp",ipAdr+":"+TCP_PORT)
@@ -82,3 +93,25 @@ func connectTcp(ipAdr string){
 	}//end for
 }
 
+func handleNewCon(con net.Conn){
+	fmt.Println("handle new Con")
+	ip:= getConIp(con)
+
+	_, ok := TcpConsMap[ip]
+	if !ok{	
+		fmt.Println("in if")
+		TcpConsMap[ip]=con
+		go listenMsg(con)
+	}else{
+		fmt.Println("connection already excist")
+	}
+}
+
+
+
+func getConIp(con net.Conn)(ip string){
+	split:=strings.Split(con.RemoteAddr().String(),":") //splits ip from port
+	conIp :=split[0]
+	return conIp
+	
+}
