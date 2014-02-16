@@ -5,6 +5,7 @@ import "coms"
 import "fmt"
 import "network"
 import "elevdriver"
+import "elevCtrl"
 
 const BCAST_IP = "129.241.187.255"
 const LISTEN_PORT = "20022"
@@ -28,8 +29,10 @@ func main() {
     motorChan := make(chan elevdriver.Direction_t)
     stopButtonChan := make(chan bool)
     obsChan := make(chan bool)
-	
-	elevdriver.InitElev(
+
+	var elev elevCtrl.Elevator
+
+	elev.ElevInit(
 		buttonChan, 
 		floorChan, 
 		motorChan,

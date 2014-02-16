@@ -18,7 +18,7 @@ type Elevator struct{
     obsChan 	chan bool
 }
 
-func (elev *Elevator)elevInit(	
+func (elev *Elevator)ElevInit(	
 		buttonChan chan elevdriver.Button,
 		sensorChan chan int,
 		motorChan chan elevdriver.Direction_t,

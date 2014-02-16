@@ -1,7 +1,7 @@
 package elevCtrl
 
 import (
-	//"fmt"
+	"fmt"
 	"elevdriver"
 )
 
@@ -28,25 +28,30 @@ const(
 
 func (elev *Elevator)action_start_down(){
 	elevdriver.MotorDown(elev.motorChan)
-	elev.state = MOVING_UP
+	elev.state = MOVING_DOWN
+	fmt.Println("fsm: MOVING_DOWN")
 }
 
 func (elev *Elevator)action_start_up(){
 	elevdriver.MotorUp(elev.motorChan)
-	elev.state = MOVING_DOWN
+	elev.state = MOVING_UP
+	fmt.Println("fsm: MOVING_UP")
 }
 
 func (elev *Elevator)action_exec_order(){
 	elevdriver.MotorStop(elev.motorChan)
 	elevdriver.OpenDoor()
 	//start_timer()	
+	//order_executed()
 	elev.state = DOORS_OPEN 
+	fmt.Println("fsm: DOORS_OPEN")
 }
 
 func (elev *Elevator)action_done(){
 	elevdriver.CloseDoor()
 	// stop_timer()	
 	elev.state = IDLE
+	fmt.Println("fsm: IDLE")
 }
 
 func (elev *Elevator)action_stop(){
@@ -59,7 +64,7 @@ func (elev *Elevator)action_pause(){
 }
 
 func action_dummy(){
-	//do nothing
+	fmt.Println("fsm: dummy!")
 }
 
 func (elev *Elevator)fsm_init(){
@@ -85,4 +90,45 @@ func (elev *Elevator)fsm_init(){
 func (elev *Elevator)fsm_update(event Event_t){
 	elev.fsm_table[elev.state][event]()
 }
+
+/*
+type Elevator struct{
+	fsm_table	[][]func()
+	state 		State_t
+	lastDir 	elevdriver.Direction_t
+	lastFloor 	int
+    buttonChan 	chan elevdriver.Button
+    floorChan 	chan int
+    motorChan 	chan elevdriver.Direction_t
+    stopButtonChan chan bool
+    obsChan 	chan bool
+*/
+
+/*
+func (elev *Elevator)fsm_get_event(){
+	select{
+	case <- elev.stopButton:
+	case <- elev.obsChan:
+	case floor:=<- elev.floorChan:
+		if floor != -1{
+			elev.lastFloor = floor
+			if should_stop(){
+				event chan <- exec_order
+			}
+		}	
+	case <- elev.newOrder:
+		target_floor:= get_nearest_order()
+		switch{
+		case target_floor<elev.lastFloor && elev.state		
+	}
+}
+
+*/
+
+
+
+
+
+
+
 
