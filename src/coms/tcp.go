@@ -14,27 +14,26 @@ func HandleTCPCom(){
 	go listenTcpCon()
 
 	for {
-	fmt.Println("in select")
+	
 		select{
 		case newTcpCon:=<- tcpChan.new_conn:
 			handleNewCon(newTcpCon)
+		case ip:=<-ComsChan.ConnectToElev:
+			ConnectTcp(ip)
 		}//end select
 	}//end for
 }
 
 
 func listenMsg(con net.Conn){
-	fmt.Println("inside listen Msg")
 	msg := make([]byte,1024)
-	addr := con.RemoteAddr()
-	fmt.Println(addr)
     for {
 		_, err := con.Read(msg[0:])
 	    if err!=nil {
 			//fmt.Println("error in listen")			
 		}else{
 			ComsChan.RecvPckg<-msg
-			fmt.Println("sendt msg on channel to network")
+			
 		}
 	}
 }
@@ -50,26 +49,27 @@ func listenTcpCon(){
 			if err != nil {
 				return
 			}else{
-   				fmt.Println("connection ok")
+   				
    				tcpChan.new_conn<-con
-				fmt.Println("sendt con on chan")
-   				//"send on new ip channel"
-   			
+				fmt.Println("recieved connection, sending to handle")   			
    			}
    	}
 }	
 
-func sendTcpMsg(msg []byte, ipAddr string){
+func SendTcpMsg(msg []byte, ipAddr string){
 	con, ok :=TcpConsMap[ipAddr]
-	if ok{
+	switch ok{
+	case true:
 		_, err := con.Write(msg)
 		if err!=nil{
 			fmt.Println("failed to send msg")
+		}else{
+			fmt.Println("msg ok")
 		}
-	}else{
+	case false:
 		fmt.Println("error, not a connection")
 	}
-}
+}	
 
 
 func ConnectTcp(ipAdr string){
@@ -98,8 +98,10 @@ func handleNewCon(con net.Conn){
 	ip:= getConIp(con)
 
 	_, ok := TcpConsMap[ip]
+	
 	if !ok{	
-		fmt.Println("in if")
+		fmt.Println(ok)
+		fmt.Println("connection not in map, adding connection")
 		TcpConsMap[ip]=con
 		go listenMsg(con)
 	}else{

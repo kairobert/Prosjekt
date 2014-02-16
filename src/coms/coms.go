@@ -14,6 +14,7 @@ type ComsChannels struct{
 	RecvPckg chan []byte
 	SendPckg chan []byte  
 	SendBcast chan []byte
+	ConnectToElev chan string
 
 }    
 var ComsChan ComsChannels
@@ -22,6 +23,7 @@ func ComsChanInit(){
 	ComsChan.RecvPckg = make(chan []byte,255)
 	ComsChan.SendPckg = make(chan []byte,255)
 	ComsChan.SendBcast = make(chan []byte,255)
+	ComsChan.ConnectToElev = make(chan string,255)
 }
 
 type TcpChannels struct{
