@@ -25,7 +25,7 @@ func main() {
 
 	buttonChan := make(chan elevdriver.Button)
     floorChan := make(chan int)
-    motorChan := make(chan elevdriver.Direction)
+    motorChan := make(chan elevdriver.Direction_t)
     stopButtonChan := make(chan bool)
     obsChan := make(chan bool)
 	

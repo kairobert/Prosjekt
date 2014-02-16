@@ -8,7 +8,7 @@ import (
     "time"
 )
 
-type Direction int 
+type Direction_t int 
 
 const SPEED0 = 2048
 const SPEED1 = 4024
@@ -16,17 +16,17 @@ const REV_TIME = 10 * time.Millisecond
 
 const N_FLOORS = 4
 const (
-    UP Direction = iota
+    UP Direction_t = iota
     DOWN
     NONE
 )
 
 type Button struct{
 	floor int    
-	dir Direction           
+	dir Direction_t          
 }
 
-func setLight(floor int, dir Direction){
+func setLight(floor int, dir Direction_t){
     switch{  
     case floor == 1 && dir == NONE:
             Set_bit(LIGHT_COMMAND1)
@@ -53,7 +53,7 @@ func setLight(floor int, dir Direction){
 	}
 }
 
-func ClearLight(floor int, dir Direction){
+func ClearLight(floor int, dir Direction_t){
     switch{  
     case floor == 1 && dir == NONE:
         Clear_bit(LIGHT_COMMAND1)
@@ -96,7 +96,7 @@ func ClearAllLights(){
         ClearStopButton()
 }
 
-func motorCtrl(motorChan chan Direction){
+func motorCtrl(motorChan chan Direction_t){
     lastDir := NONE
 	newDir := NONE
 
@@ -212,7 +212,7 @@ func listenSensors(sensorChan chan int){
 func InitElev(	
 		buttonChan chan Button,
 		sensorChan chan int,
-		motorChan chan Direction,
+		motorChan chan Direction_t,
 		stopButtonChan chan bool,
 		obsChan chan bool){
 
@@ -250,16 +250,16 @@ func CloseDoor(){
     	Clear_bit(DOOR_OPEN)
 }
 
-func MotorUp(motorChan chan Direction) {
+func MotorUp(motorChan chan Direction_t) {
         motorChan <- UP
 }
 
-func MotorDown(motorChan chan Direction) {
+func MotorDown(motorChan chan Direction_t) {
         motorChan <- DOWN
 		fmt.Println("motorChan <- DOWN")
 }
 
-func MotorStop(motorChan chan Direction) {
+func MotorStop(motorChan chan Direction_t) {
         motorChan <- NONE
 }
 
