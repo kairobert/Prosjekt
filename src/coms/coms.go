@@ -15,8 +15,8 @@ type ComsChannels struct{
 	SendPckg chan []byte  
 	SendBcast chan []byte
 	ConnectToElev chan string
-
-}    
+}
+    
 var ComsChan ComsChannels
 
 func ComsChanInit(){
