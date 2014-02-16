@@ -234,7 +234,9 @@ func InitElev(
         signal.Notify(c, os.Interrupt)
         s := <-c
         log.Printf("Got: %v, terminating program..", s)
-        MotorStop(motorChan)
+		/* stop motor, no reverse and delay */
+        Clear_bit(MOTORDIR)
+    	Write_analog(MOTOR,SPEED0)
         ClearAllLights()
         os.Exit(1)
     }()
