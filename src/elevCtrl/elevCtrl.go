@@ -11,14 +11,16 @@ type Elevator struct{
 	state 		State_t
 	lastDir 	elevdriver.Direction_t
 	lastFloor 	int
-    buttonChan 	chan elevdriver.Button
-    floorChan 	chan int
-    motorChan 	chan elevdriver.Direction_t
-    stopButtonChan chan bool
-    obsChan 	chan bool
+	orders		[][]bool
+	newOrder	chan bool
+	buttonChan 	chan elevdriver.Button
+	floorChan 	chan int
+	motorChan 	chan elevdriver.Direction_t
+	stopButtonChan chan bool
+	obsChan 	chan bool
 }
 
-func (elev *Elevator)elevInit(	
+func (elev *Elevator)ElevInit(	
 		buttonChan chan elevdriver.Button,
 		sensorChan chan int,
 		motorChan chan elevdriver.Direction_t,
