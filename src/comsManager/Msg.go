@@ -2,6 +2,7 @@ package comsManager
 
 import "elevNet"
 import "fmt"
+import "message"
 
 
 
@@ -10,7 +11,7 @@ func DeliverPckg(networkChan elevNet.ComsChannels){
     msg:=make([]byte,100)
     for{
         msg=<-networkChan.RecvPckg
-        pckg :=Bytestrm2pckg(msg)
+        pckg :=message.Bytestream2message(msg)
     
         switch pckg.Msg_type{
         case "connectTo":
@@ -28,7 +29,7 @@ func SendPckgs(sendChan elevNet.ComsChannels){ //TTEST
 	for{
 		select{
 		case p:=<-NetChan.SendUDP:
-			msg:=Pckg2bstream(p)
+			msg:=message.Message2bytestream(p)
 			sendChan.SendBcast<-msg
 		}
 	}

@@ -3,7 +3,8 @@ package main
 import "runtime"
 import "comsManager"
 import "elevNet"
-//import "fmt"
+
+import "fmt"
 //import "strings"
 
 
@@ -18,6 +19,7 @@ func main() {
 	comsManager.NetChanInit()
 	c := make(chan int)
 	runtime.GOMAXPROCS(runtime.NumCPU())
+	fmt.Println("hai")
 	
 	 
 	go elevNet.HandleTCPCom()
@@ -27,7 +29,7 @@ func main() {
 	go elevNet.ListenToBroadcast(elevNet.ComsChan)
 	//go coms.SendPckgToAll(coms.ComsChan)
 	
-	//msg:=network.ConstructPckg("129.241.187.152","connectTo", "test")
+	//msg:=message.ConstructPckg("129.241.187.152","connectTo", "test")
 	//for i:=0;i<1;i++{
 	//	network.NetChan.SendUDP<-msg
 	//}
