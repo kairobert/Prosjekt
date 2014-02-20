@@ -1,8 +1,8 @@
 package main
 
 import "runtime"
-import "coms"
-import "network"
+import "comsManager"
+import "elevNet"
 //import "fmt"
 //import "strings"
 
@@ -13,18 +13,18 @@ const TARGET_IP = "129.241.187.142"
 
 
 func main() {
-	coms.TcpChanInit()
-	coms.ComsChanInit()
-	network.NetChanInit()
+	elevNet.TcpChanInit()
+	elevNet.ComsChanInit()
+	comsManager.NetChanInit()
 	c := make(chan int)
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	
 	 
-	go coms.HandleTCPCom()
-	go coms.ListenToBroadcast(coms.ComsChan)
-	go network.DeliverPckg(coms.ComsChan)
-	go network.SendPckgs(coms.ComsChan)
-	go coms.ListenToBroadcast(coms.ComsChan)
+	go elevNet.HandleTCPCom()
+	go elevNet.ListenToBroadcast(elevNet.ComsChan)
+	go comsManager.DeliverPckg(elevNet.ComsChan)
+	go comsManager.SendPckgs(elevNet.ComsChan)
+	go elevNet.ListenToBroadcast(elevNet.ComsChan)
 	//go coms.SendPckgToAll(coms.ComsChan)
 	
 	//msg:=network.ConstructPckg("129.241.187.152","connectTo", "test")

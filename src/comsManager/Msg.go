@@ -1,12 +1,12 @@
-package network
+package comsManager
 
-import "coms"
+import "elevNet"
 import "fmt"
 
 
 
 
-func DeliverPckg(networkChan coms.ComsChannels){
+func DeliverPckg(networkChan elevNet.ComsChannels){
     msg:=make([]byte,100)
     for{
         msg=<-networkChan.RecvPckg
@@ -24,7 +24,7 @@ func DeliverPckg(networkChan coms.ComsChannels){
     }
 }
 
-func SendPckgs(sendChan coms.ComsChannels){ //TTEST
+func SendPckgs(sendChan elevNet.ComsChannels){ //TTEST
 	for{
 		select{
 		case p:=<-NetChan.SendUDP:
