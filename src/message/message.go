@@ -6,6 +6,7 @@ import "strings"
 const SIZE = 1024
 
 type Message struct{
+	To string
 	From string //ipAdr
 	Msg_type string //order, deadElev, auction, connect to me
 	Payload string
@@ -14,13 +15,13 @@ type Message struct{
 
 
 
-func ConstructMessage(adr string, typ string, msg string) Message{
-	return Message{adr,typ,msg}
+func ConstructMessage(to string, from string, typ string, msg string) Message{
+	return Message{to,from,typ,msg}
 }
 
 //not generic, could use reflect...
 func Message2bytestream (m Message) []byte{
-	msg := m.From +"~"+ m.Msg_type +"~"+ m.Payload
+	msg := m.To +"~"+m.From +"~"+ m.Msg_type +"~"+ m.Payload
 	return []byte(msg+"\x00")
 }
 
@@ -28,7 +29,7 @@ func Message2bytestream (m Message) []byte{
 func Bytestream2message(m []byte) Message{
 	msg_string := string(m[:])
 	msg_array := strings.Split(msg_string, "~")
-	msg := Message{msg_array[0], msg_array[1], msg_array[2]}
+	msg := Message{msg_array[0], msg_array[1], msg_array[2], msg_array[3]}
 	return msg
 }
 

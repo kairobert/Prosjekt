@@ -3,6 +3,7 @@ import(
 	"net"
 	"fmt"	
 	"strings"	
+	"message"
 )
 
 const CON_ATMPTS = 10
@@ -10,29 +11,32 @@ const TCP_PORT = "30000" //All elevators will listen to this port for TCP connec
 
 
 
-func HandleTCPCom(){	
+func ManageTCPCom(){	
 	go listenTcpCon()
 
-	for {
-	
+	for {	
 		select{
 		case newTcpCon:=<- tcpChan.new_conn:
-			handleNewCon(newTcpCon)
-		case ip:=<-ComsChan.ConnectToElev:
+			registerNewCon(newTcpCon)
+		case ip:=<-ElevNetChan.ConnectToElev:
 			ConnectTcp(ip)
+		case msg:=<-ElevNetChan.SendMsg:
+			SendTcpMsg(msg)	
+			
 		}//end select
 	}//end for
 }
 
 
 func listenMsg(con net.Conn){
-	msg := make([]byte,1024)
+	bstream := make([]byte,1024)
     for {
-		_, err := con.Read(msg[0:])
+		_, err := con.Read(bstream[0:])
 	    if err!=nil {
 			//fmt.Println("error in listen")			
 		}else{
-			ComsChan.RecvPckg<-msg
+			msg:=message.Bytestream2message(bstream)
+			ElevNetChan.RecvMsg<-msg
 			
 		}
 	}
@@ -42,25 +46,25 @@ func listenTcpCon(){
 	localAddr, err := net.ResolveTCPAddr("tcp",":"+TCP_PORT)
 	sock, err := net.ListenTCP("tcp", localAddr)
 	if err != nil { return }
-
  
 	for{
 		con, err := sock.Accept()
-			if err != nil {
-				return
-			}else{
-   				
-   				tcpChan.new_conn<-con
-				fmt.Println("recieved connection, sending to handle")   			
-   			}
+		if err != nil {
+			return
+		}else{
+			tcpChan.new_conn<-con
+			fmt.Println("recieved connection, sending to handle")   			
+   		}
    	}
 }	
 
-func SendTcpMsg(msg []byte, ipAddr string){
+func SendTcpMsg(msg message.Message){
+	ipAddr := msg.To
+	bstream:=message.Message2bytestream(msg)
 	con, ok :=TcpConsMap[ipAddr]
 	switch ok{
 	case true:
-		_, err := con.Write(msg)
+		_, err := con.Write(bstream)
 		if err!=nil{
 			fmt.Println("failed to send msg")
 		}else{
@@ -93,7 +97,7 @@ func ConnectTcp(ipAdr string){
 	}//end for
 }
 
-func handleNewCon(con net.Conn){
+func registerNewCon(con net.Conn){
 	fmt.Println("handle new Con")
 	ip:= getConIp(con)
 

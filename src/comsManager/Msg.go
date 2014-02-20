@@ -7,16 +7,14 @@ import "message"
 
 
 
-func DeliverPckg(networkChan elevNet.ComsChannels){
-    msg:=make([]byte,100)
+func DeliverMsg(networkChan elevNet.ElevNetChannels){
     for{
-        msg=<-networkChan.RecvPckg
-        pckg :=message.Bytestream2message(msg)
+        msg:=<-networkChan.RecvMsg
     
-        switch pckg.Msg_type{
+        switch msg.Msg_type{
         case "connectTo":
             fmt.Println("The msg is of type udp")
-			networkChan.ConnectToElev<-pckg.From
+			networkChan.ConnectToElev<-msg.From
 		case "test":
 			fmt.Println("tcp msg recieved")
         default:
@@ -25,11 +23,10 @@ func DeliverPckg(networkChan elevNet.ComsChannels){
     }
 }
 
-func SendPckgs(sendChan elevNet.ComsChannels){ //TTEST
+func SendMsg(msg message.Message,sendChan elevNet.ElevNetChannels){ //TTEST
 	for{
 		select{
-		case p:=<-NetChan.SendUDP:
-			msg:=message.Message2bytestream(p)
+		case <-NetChan.SendUDP:
 			sendChan.SendBcast<-msg
 		}
 	}

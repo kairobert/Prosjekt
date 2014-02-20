@@ -1,15 +1,15 @@
 package elevNet
 
 import (
-	"net"
+	"net"	
+	"message"
 
 	
 )
 
 const UDP_PORT ="20000"//All Elevs listen to this Broadcast Port
 
-
-func SendPckgToAll(pckgChan ComsChannels){
+func SendMsgToAll(msgChan ElevNetChannels){
     bcastIP:=GetBroadcastIP(GetMyIP())
     
 	serverAddr, err := net.ResolveUDPAddr("udp",bcastIP+":"+UDP_PORT)
@@ -19,13 +19,13 @@ func SendPckgToAll(pckgChan ComsChannels){
 	if err != nil {return}
 	
 	for {
-		msg:=make([]byte,100)
-		msg=<-pckgChan.SendBcast
-		con.Write(msg)
+		msg:=<-msgChan.SendBcast
+		bstream:=message.Message2bytestream(msg)
+		con.Write(bstream)
 	}		
 }
 
-func ListenToBroadcast(pckgChan ComsChannels) {
+func ListenToBroadcast(msgChan ElevNetChannels) {
 	myIp :=GetMyIP()
 	bcastIP:=GetBroadcastIP(myIp)
 	
@@ -43,7 +43,8 @@ func ListenToBroadcast(pckgChan ComsChannels) {
     		if err != nil { return }
 		
     		if remoteAddr.IP.String() != myIp {
-    	    		pckgChan.RecvPckg<-buf
+					msg:=message.Bytestream2message(buf)
+    	    		msgChan.RecvMsg<-msg
     		}       
       }	
 }

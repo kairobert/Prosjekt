@@ -15,18 +15,18 @@ const TARGET_IP = "129.241.187.142"
 
 func main() {
 	elevNet.TcpChanInit()
-	elevNet.ComsChanInit()
+	elevNet.ElevNetChanInit()
 	comsManager.NetChanInit()
 	c := make(chan int)
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	fmt.Println("hai")
 	
 	 
-	go elevNet.HandleTCPCom()
-	go elevNet.ListenToBroadcast(elevNet.ComsChan)
-	go comsManager.DeliverPckg(elevNet.ComsChan)
-	go comsManager.SendPckgs(elevNet.ComsChan)
-	go elevNet.ListenToBroadcast(elevNet.ComsChan)
+	go elevNet.ManageTCPCom()
+	go elevNet.ListenToBroadcast(elevNet.ElevNetChan)
+	go comsManager.DeliverMsg(elevNet.ElevNetChan)
+	//go comsManager.SendMsg(msg, elevNet.ElevNetChan)
+	go elevNet.ListenToBroadcast(elevNet.ElevNetChan)
 	//go coms.SendPckgToAll(coms.ComsChan)
 	
 	//msg:=message.ConstructPckg("129.241.187.152","connectTo", "test")
