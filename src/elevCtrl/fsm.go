@@ -70,23 +70,15 @@ func action_dummy(){
 }
 
 func (elev *Elevator)fsm_init(){
-	//state						//start_down			//start_up				//exec_order			//timeout			
-	IDLE_ev			:= []func(){elev.action_start_down, elev.action_start_up, 	elev.action_exec_order,	action_dummy}	
-	DOORS_OPEN_ev	:= []func(){action_dummy, 			action_dummy, 			action_dummy,			elev.action_done}	
-	MOVING_UP_ev	:= []func(){action_dummy, 			action_dummy, 			elev.action_stop,		action_dummy}
-	MOVING_DOWN_ev	:= []func(){action_dummy, 			action_dummy,			elev.action_stop,		action_dummy} 
-	EMG_ev			:= []func(){action_dummy, 			action_dummy, 			action_dummy,			action_dummy}
-	OBST_ev			:= []func(){action_dummy, 			action_dummy, 			action_dummy,			action_dummy}
-
-	table := [][]func(){
-		IDLE_ev, 
-		DOORS_OPEN_ev,
-		MOVING_UP_ev,
-		MOVING_DOWN_ev,
-		EMG_ev,
-		OBST_ev,
+	elev.fsm_table = [][]func(){
+/*STATES:	\	EVENTS:		//start_down			//start_up				//exec_order			//timeout			
+/* IDLE			*/	[]func(){elev.action_start_down, elev.action_start_up, 	elev.action_exec_order,	action_dummy},	
+/* DOORS_OPEN	*/	[]func(){action_dummy, 			action_dummy, 			action_dummy,			elev.action_done},	
+/* MOVING_UP	*/	[]func(){action_dummy, 			action_dummy, 			elev.action_stop,		action_dummy},
+/* MOVING_DOWN	*/	[]func(){action_dummy, 			action_dummy,			elev.action_stop,		action_dummy}, 
+/* EMG			*/	[]func(){action_dummy, 			action_dummy, 			action_dummy,			action_dummy},
+/* OBST			*/	[]func(){action_dummy, 			action_dummy, 			action_dummy,			action_dummy},
 	}
-	elev.fsm_table = table
 }
 
 func (elev *Elevator)fsm_update(event Event_t){
