@@ -26,6 +26,7 @@ const(
 	obst
 )
 
+/* 	FSM Actions */
 func (elev *Elevator)action_start_down(){
 	elevdriver.MotorDown(elev.motorChan)
 	elev.state = MOVING_DOWN
@@ -46,6 +47,7 @@ func (elev *Elevator)action_exec_order(){
 	//start_timer()	
 	//order_executed()
 	elev.state = DOORS_OPEN 
+	elevdriver.setLight(elev.lastFloor, elev.lastDirection)
 	fmt.Println("fsm: DOORS_OPEN")
 }
 
@@ -69,6 +71,7 @@ func action_dummy(){
 	fmt.Println("fsm: dummy!")
 }
 
+/* Finite State Machine */
 func (elev *Elevator)fsm_init(){
 	elev.fsm_table = [][]func(){
 /*STATES:	\	EVENTS:		//start_down			//start_up				//exec_order			//timeout			
@@ -76,11 +79,12 @@ func (elev *Elevator)fsm_init(){
 /* DOORS_OPEN	*/	[]func(){action_dummy, 			action_dummy, 			action_dummy,			elev.action_done},	
 /* MOVING_UP	*/	[]func(){action_dummy, 			action_dummy, 			elev.action_stop,		action_dummy},
 /* MOVING_DOWN	*/	[]func(){action_dummy, 			action_dummy,			elev.action_stop,		action_dummy}, 
-/* EMG			*/	[]func(){action_dummy, 			action_dummy, 			action_dummy,			action_dummy},
-/* OBST			*/	[]func(){action_dummy, 			action_dummy, 			action_dummy,			action_dummy},
+/* EMG				[]func(){action_dummy, 			action_dummy, 			action_dummy,			action_dummy},*/
+/* OBST				[]func(){action_dummy, 			action_dummy, 			action_dummy,			action_dummy},*/
 	}
 }
 
+/* FSM help functions */
 func (elev *Elevator)fsm_update(event Event_t){
 	elev.fsm_table[elev.state][event]()
 }
