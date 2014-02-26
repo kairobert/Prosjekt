@@ -8,7 +8,7 @@ import(
 
 const CON_ATMPTS = 10
 const TCP_PORT = "30000" //All elevators will listen to this port for TCP connections
-
+const BUFF_SIZE = 1024
 
 
 func ManageTCPCom(){	
@@ -29,7 +29,7 @@ func ManageTCPCom(){
 
 
 func listenMsg(con net.Conn){
-	bstream := make([]byte,1024)
+	bstream := make([]byte, BUFF_SIZE)
     for {
 		_, err := con.Read(bstream[0:])
 	    if err!=nil {
@@ -61,7 +61,7 @@ func listenTcpCon(){
 func SendTcpMsg(msg message.Message){
 	ipAddr := msg.To
 	bstream:=message.Message2bytestream(msg)
-	con, ok :=TcpConsMap[ipAddr]
+	con, ok :=ElevNetMap.TcpConsMap[ipAddr]
 	switch ok{
 	case true:
 		_, err := con.Write(bstream)
@@ -97,16 +97,16 @@ func ConnectTcp(ipAdr string){
 	}//end for
 }
 
-func registerNewCon(con net.Conn){
+func registerNewCon(con net.Conn){ //ta inn conn
 	fmt.Println("handle new Con")
 	ip:= getConIp(con)
 
-	_, ok := TcpConsMap[ip]
+	_, ok := ElevNetMap.TcpConsMap[ip]
 	
 	if !ok{	
 		fmt.Println(ok)
 		fmt.Println("connection not in map, adding connection")
-		TcpConsMap[ip]=con
+		ElevNetMap.TcpConsMap[ip]=con
 		go listenMsg(con)
 	}else{
 		fmt.Println("connection already excist")

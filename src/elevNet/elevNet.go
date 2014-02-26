@@ -1,16 +1,22 @@
 package elevNet
 import("net")
 import("message")
-
-
-
-var TcpConsMap = map[string]net.Conn{
-	}
-
-
+import("time")
 
 const TARGET_PORT = "20011"
 const LISTEN_PORT = "30011"
+
+type ElevNetMaps struct{
+    TcpConsMap map[string]net.Conn
+    PingTimeMap map[string]time.Time
+}
+var ElevNetMap ElevNetMaps
+
+func ElevNetMapInit(){
+    ElevNetMap.TcpConsMap = make(map[string]net.Conn)
+    ElevNetMap.PingTimeMap =make(map[string]time.Time)
+}
+
 
 type ElevNetChannels struct{
 	RecvMsg chan message.Message
