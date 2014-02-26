@@ -6,7 +6,7 @@ import( "time"
 
        )
 
-//new channels
+//new channels fix this
 var timerOut chan bool
 var newip chan string
 var pingMsg chan message.Message
