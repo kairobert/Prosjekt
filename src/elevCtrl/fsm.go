@@ -41,19 +41,28 @@ func (elev *Elevator)action_start_up(){
 	fmt.Println("fsm: MOVING_UP")
 }
 
-func (elev *Elevator)action_exec_order(){
+func (elev *Elevator)action_exec(){
+	elevdriver.OpenDoor()
+	//start_timer()	
+	//order_executed()
+	elev.state = DOORS_OPEN 
+	elevdriver.SetLight(elev.lastFloor, elev.lastDir)
+	fmt.Println("fsm: DOORS_OPEN")
+}
+
+func (elev *Elevator)action_halt_n_exec(){
 	elevdriver.MotorStop(elev.motorChan)
 	elevdriver.OpenDoor()
 	//start_timer()	
 	//order_executed()
 	elev.state = DOORS_OPEN 
-	elevdriver.SetLight(elev.lastFloor, elev.lastDirection)
+	elevdriver.SetLight(elev.lastFloor, elev.lastDir)
 	fmt.Println("fsm: DOORS_OPEN")
 }
 
 func (elev *Elevator)action_done(){
 	elevdriver.CloseDoor()
-	// stop_timer()	
+	// stop_timer()
 	elev.state = IDLE
 	fmt.Println("fsm: IDLE")
 }
@@ -74,13 +83,12 @@ func action_dummy(){
 /* Finite State Machine */
 func (elev *Elevator)fsm_init(){
 	elev.fsm_table = [][]func(){
-/*STATES:	\	EVENTS:		//start_down			//start_up				//exec_order			//timeout			
-/* IDLE			*/	[]func(){elev.action_start_down, elev.action_start_up, 	elev.action_exec_order,	action_dummy},	
-/* DOORS_OPEN	*/	[]func(){action_dummy, 			action_dummy, 			action_dummy,			elev.action_done},	
-/* MOVING_UP	*/	[]func(){action_dummy, 			action_dummy, 			elev.action_stop,		action_dummy},
-/* MOVING_DOWN	*/	[]func(){action_dummy, 			action_dummy,			elev.action_stop,		action_dummy}, 
-/* EMG				[]func(){action_dummy, 			action_dummy, 			action_dummy,			action_dummy},*/
-/* OBST				[]func(){action_dummy, 			action_dummy, 			action_dummy,			action_dummy},*/
+/*STATES:	\	EVENTS:	//start_down			//start_up				//exec_order			//timeout			
+/*IDLE		 */	[]func(){elev.action_start_down, elev.action_start_up, 	elev.action_exec,	    action_dummy},	
+/*DOORS_OPEN */	[]func(){action_dummy, 			action_dummy, 			elev.action_exec,	    elev.action_done},	
+/*MOVING_UP	 */ []func(){action_dummy, 			action_dummy, 			elev.action_halt_n_exec,action_dummy},
+/*MOVING_DOWN*/	[]func(){action_dummy, 			action_dummy,			elev.action_halt_n_exec,action_dummy}, 
+
 	}
 }
 
@@ -100,8 +108,7 @@ func (elev *Elevator)get_nearest_order() elevdriver.Direction_t{
 	return elevdriver.UP
 }
 
-
-func (elev *Elevator)fsm_handle_events(){
+func (elev *Elevator)fsm_generate_n_handle_events(){
 	select{
 
 	case <- elev.stopButtonChan:
@@ -113,11 +120,11 @@ func (elev *Elevator)fsm_handle_events(){
 	case floor:=<- elev.floorChan:
 		if floor != -1{
 			elev.lastFloor = floor
+			//set floor_light
 			if elev.should_stop(floor){
 				elev.fsm_update(exec_order)
 			}
 		}
-	
 	case <- elev.newOrder:
 		nextDir := elev.get_nearest_order()
 		if elev.state == IDLE{
@@ -132,5 +139,7 @@ func (elev *Elevator)fsm_handle_events(){
 				elev.fsm_update(exec_order)
 			}
 		}
+	case <-elev.timer:
+	    elev.fsm_update(timeout)	
 	}
 }

@@ -13,6 +13,7 @@ type Elevator struct{
 	lastFloor 	int
 	orders		[][]bool
 	newOrder	chan bool
+	timer       chan bool
 	buttonChan 	chan elevdriver.Button
 	floorChan 	chan int
 	motorChan 	chan elevdriver.Direction_t
