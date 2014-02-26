@@ -1,9 +1,9 @@
 package main
 
 import "runtime"
-import "coms"
 import "fmt"
-import "network"
+import "elevNet"
+import "comsManager"
 import "elevdriver"
 import "elevCtrl"
 
