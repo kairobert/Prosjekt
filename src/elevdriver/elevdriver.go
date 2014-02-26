@@ -26,7 +26,7 @@ type Button struct{
 	dir Direction_t          
 }
 
-func setLight(floor int, dir Direction_t){
+func SetLight(floor int, dir Direction_t){
     switch{  
     case floor == 1 && dir == NONE:
             Set_bit(LIGHT_COMMAND1)

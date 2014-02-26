@@ -47,7 +47,7 @@ func (elev *Elevator)action_exec_order(){
 	//start_timer()	
 	//order_executed()
 	elev.state = DOORS_OPEN 
-	elevdriver.setLight(elev.lastFloor, elev.lastDirection)
+	elevdriver.SetLight(elev.lastFloor, elev.lastDirection)
 	fmt.Println("fsm: DOORS_OPEN")
 }
 
