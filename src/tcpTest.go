@@ -29,7 +29,7 @@ func main() {
 	go elevNet.ListenToBroadcast(elevNet.ComsChan)
 	//go coms.SendPckgToAll(coms.ComsChan)
 	
-	//msg:=message.ConstructPckg("129.241.187.153","connectTo", "test")
+	//msg:=message.ConstructPckg("129.241.187.152","connectTo", "test")
 	//for i:=0;i<1;i++{
 	//	network.NetChan.SendUDP<-msg
 	//}
