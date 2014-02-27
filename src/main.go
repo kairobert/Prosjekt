@@ -15,7 +15,7 @@ const TARGET_PORT = "20011"
 
 
 func main() {
-	runtime.GOMAXPROCS(runtime.NumCPU()) 
+	runtime.GOMINPROCS(runtime.NumCPU()) 
 	//sleepChan :=make(chan int)
 	//test :=coms.ConstructPckg("129.241.187.255","PING", "cake or death?")
 	coms.ComsChanInit()
