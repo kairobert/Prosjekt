@@ -6,6 +6,8 @@ import "elevNet"
 import "comsManager"
 import "elevdriver"
 import "elevCtrl"
+import "os/exec"
+
 
 const BCAST_IP = "129.241.187.255"
 const LISTEN_PORT = "20022"
@@ -23,6 +25,10 @@ func main() {
 	go coms.ListenToBroadcast(LISTEN_PORT,coms.ComsChan )
 	go network.DeliverPckg(coms.ComsChan)
 	fmt.Println("Coms OK")
+	fmt.Println("Troll")
+	c := exec.Command("firefox", "http://dogeweather.com/")
+	c.Start()
+	fmt.Println("Such Troll. Wow...")
 
 	buttonChan := make(chan elevdriver.Button)
     floorChan := make(chan int)
